@@ -1,9 +1,11 @@
 
-class CancelFitException(Exception): 
+class CancelFitException(Exception):
     pass
 
-class CancelBatchException(Exception): 
+
+class CancelBatchException(Exception):
     pass
 
-class CancelEpochException(Exception): 
+
+class CancelEpochException(Exception):
     pass

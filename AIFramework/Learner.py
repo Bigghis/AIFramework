@@ -9,8 +9,10 @@ from .exceptions import (
     CancelFitException
 )
 
+
 class Learner():
-    def __init__(self, model, dataloaders, loss_func, lr, callbacks, opt_func=optim.SGD): fc.store_attr()
+    def __init__(self, model, dataloaders, loss_func, lr, callbacks, opt_func=optim.SGD):
+        fc.store_attr()
 
     def one_batch(self):
         self.preds = self.model(self.batch[0])
@@ -25,15 +27,17 @@ class Learner():
         self.dl = self.dataloaders.train if train else self.dataloaders.valid
         try:
             self.callback('before_epoch')
-            for self.iter,self.batch in enumerate(self.dl):
+            for self.iter, self.batch in enumerate(self.dl):
                 try:
                     self.callback('before_batch')
                     self.one_batch()
                     self.callback('after_batch')
-                except CancelBatchException: pass
+                except CancelBatchException:
+                    pass
             self.callback('after_epoch')
-        except CancelEpochException: pass
-    
+        except CancelEpochException:
+            pass
+
     def fit(self, n_epochs):
         self.n_epochs = n_epochs
         self.epochs = range(n_epochs)
@@ -44,9 +48,12 @@ class Learner():
                 self.one_epoch(True)
                 self.one_epoch(False)
             self.callback('after_fit')
-        except CancelFitException: pass
+        except CancelFitException:
+            pass
 
-    def callback(self, method_nm): run_callbacks(self.callbacks, method_nm, self)
-    
+    def callback(self, method_nm):
+        run_callbacks(self.callbacks, method_nm, self)
+
     @property
-    def training(self): return self.model.training
+    def training(self):
+        return self.model.training
