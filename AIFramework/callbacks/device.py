@@ -1,6 +1,7 @@
 import torch
+import fastcore.all as fc
 from typing import Mapping
-
+from .callbacks import Callback
 
 def to_device(x, device):
     if isinstance(x, torch.Tensor):

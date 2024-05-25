@@ -1,8 +1,8 @@
-from torch import optim
 import torch
+from torch import optim
 import fastcore.all as fc
 
-from .callbacks import run_callbacks
+from .callbacks.callbacks import run_callbacks
 from .exceptions import (
     CancelBatchException,
     CancelEpochException,
