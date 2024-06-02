@@ -62,7 +62,7 @@ def get_grid(
     **kwargs,
 ):  # fig and axs
     '''Return a grid of `n` axes, `rows` by `cols`'''
-
+    # pdb.set_trace()
     if nrows:
         ncols = ncols or int(np.floor(n/nrows))
     elif ncols:
