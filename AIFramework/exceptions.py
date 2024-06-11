@@ -9,3 +9,7 @@ class CancelBatchException(Exception):
 
 class CancelEpochException(Exception):
     pass
+
+
+class CleanMemException(Exception):
+    pass

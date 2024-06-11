@@ -9,6 +9,10 @@ from .utils import to_cpu
 
 
 class MetricsCB(Callback):
+    '''
+    This callback computes the metrics.
+    '''
+
     def __init__(self, *ms, **metrics):
         for o in ms:
             metrics[type(o).__name__] = o
@@ -39,6 +43,9 @@ class MetricsCB(Callback):
 
 
 class ProgressCB(Callback):
+    '''
+    This callback prints the progress of the training.
+    '''
     order = MetricsCB.order+1
 
     def __init__(self, plot=True):
@@ -81,9 +88,15 @@ class ProgressCB(Callback):
 
 
 def get_metrics_cb():
+    '''
+    utility function to get the metrics callback (through MetricsCB)
+    '''
     metrics = MetricsCB(accuracy=MulticlassAccuracy())
     return metrics
 
 
 def get_progress_cb(plot):
+    '''
+    utility function to print a progress bar (through ProgressCB)
+    '''
     return ProgressCB(plot)

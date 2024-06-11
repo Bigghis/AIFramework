@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 from torch import optim
 import fastcore.all as fc
 
@@ -11,8 +12,9 @@ from .exceptions import (
 
 
 class Learner():
-    def __init__(self, model, dataloaders, loss_func, lr, callbacks, opt_func=optim.SGD):
+    def __init__(self, model, dataloaders, lr, callbacks, force_train=False, force_eval=False, loss_func=F.cross_entropy, opt_func=optim.SGD):
         fc.store_attr()
+        self.callback('after_init')
 
     def one_batch(self):
         self.preds = self.model(self.batch[0])
@@ -45,8 +47,13 @@ class Learner():
         try:
             self.callback('before_fit')
             for self.epoch in self.epochs:
-                self.one_epoch(True)
-                self.one_epoch(False)
+                if self.force_train: # force training only from params
+                    self.one_epoch(True)
+                elif self.force_eval: # force eval only from params
+                    self.one_epoch(False)
+                else: # default case --> training + eval for every epoch
+                    self.one_epoch(True)
+                    self.one_epoch(False)
             self.callback('after_fit')
         except CancelFitException:
             pass

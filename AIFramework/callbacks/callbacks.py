@@ -2,6 +2,11 @@ from functools import partial
 import fastcore.all as fc
 from operator import attrgetter
 
+from ..exceptions import (
+    CancelFitException
+)
+
+
 class Callback():
     ''' Callback can be used in different points of training loop'''
     order = 0
@@ -74,3 +79,11 @@ class HooksCallback(Callback):
 
     def __len__(self):
         return len(self.hooks)
+
+
+class SingleBatchCB(Callback):
+    order = 1
+
+    def after_batch(self, learn):
+        raise CancelFitException()
+

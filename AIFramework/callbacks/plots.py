@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 import fastcore.all as fc
-from .callbacks import HooksCallback
+from .callbacks import HooksCallback, Hooks, SingleBatchCB
 from .plotCharts.utils import get_grid, show_image, get_hist, get_min
 from .utils import to_cpu
 
@@ -16,6 +16,9 @@ def append_stats(hook, mod, inp, outp):
 
 
 class ActivationStats(HooksCallback):
+    ''' 
+    Callback to collect and plotting activation statistics
+    '''
     def __init__(self, mod_filter=fc.noop):
         super().__init__(append_stats, mod_filter)
 
