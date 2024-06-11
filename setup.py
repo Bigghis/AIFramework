@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="AIFramework",
-    version="0.0.24",
+    version="0.0.34",
     author="Pasquale Casciano",
     author_email="pa.casciano@gmail.com",
     description="A tiny AI learner framework based on Jeremy Howard's lessons.",
@@ -28,3 +28,4 @@ setuptools.setup(
     ],
     python_requires='>=3.11',
 )
+
