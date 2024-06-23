@@ -46,6 +46,10 @@ def clean_mem():
 
 
 class CleanMemEnvironmentCB(Callback):
+    '''
+    clear a notebook environment 
+    Used when a learner is initialized in a notebook
+    '''
     order = 1
 
     def after_init(self, learn):
