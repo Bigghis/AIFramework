@@ -47,9 +47,9 @@ class Learner():
         try:
             self.callback('before_fit')
             for self.epoch in self.epochs:
-                if self.force_train: # force training only from params
+                if self.force_train: # force training only
                     self.one_epoch(True)
-                elif self.force_eval: # force eval only from params
+                elif self.force_eval: # force eval only
                     self.one_epoch(False)
                 else: # default case --> training + eval for every epoch
                     self.one_epoch(True)
