@@ -15,7 +15,7 @@ The learner can be used to train or eval a neural network model.
 
 
 ### Example usage
-Basic usage: after defined a model and some useful callbacks, we can instantiate a Learner and execute it's **fit(epochs)** method.
+Basic usage: after defined a model and some useful callbacks, instantiate a Learner and execute it's **fit(epochs)** method.
 
 ```python
 
@@ -29,11 +29,12 @@ learn.fit(3)
 ```
 ### Callbacks
 
-There are several implemented callbacks (and hooks), grouped into different categories:  
+There are several callbacks (and hooks), implemented and grouped into different categories:  
 
-* **initialization** to transform data batches after training loop 
+* **initialization** to transform data batches before training 
 * **metrics** to measure accuracy, loss functions values during the training
 * **plot** to draw plots of various statistics
+* **device** used to select device (CPU, GPU, ..) where the training is performed
 * **scheduler** to define, configure and execute schedulers
 * **utilities** various features, ex.: memory clean callbacks
 
