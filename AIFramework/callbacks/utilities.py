@@ -94,6 +94,22 @@ class AccelerateCB(TrainCB):
     https://huggingface.co/docs/accelerate/index
 
     mixed_precision="fp16" is the default mixed precision training mode. "bf16" is another option.
+
+    ----------------------------------------------------------------------
+    accelerate config example (dual GPU on local machine): 
+  
+    Which type of machine are you using? -> multi-GPU                                                                                                                                                                                                                                   
+    How many different machines will you use (use more than 1 for multi-node training)? [1]: 1                                                                                                                                                  
+    Should distributed operations be checked while running for errors? This can avoid timeout issues but will be slower. [yes/NO]: NO                                                                                                             
+    Do you wish to optimize your script with torch dynamo?[yes/NO]: NO                                                                                                                                                                             
+    Do you want to use DeepSpeed? [yes/NO]: NO                                                                                                                                                                                                    
+    Do you want to use FullyShardedDataParallel? [yes/NO]: NO                                                                                                                                                                                      
+    Do you want to use Megatron-LM ? [yes/NO]: NO                                                                                                                                                                                              
+    How many GPU(s) should be used for distributed training? [1]: 2                                                                                                                                                                              
+    What GPU(s) (by id) should be used for training on this machine as a comma-seperated list? [all]: all
+    Would you like to enable numa efficiency? (Currently only supported on NVIDIA hardware). [yes/NO]: NO
+    Do you wish to use FP16 or BF16 (mixed precision)? -> fp16  
+
     """
     order = DeviceCB.order+11
 
