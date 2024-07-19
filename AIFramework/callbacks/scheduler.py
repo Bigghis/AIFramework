@@ -18,27 +18,27 @@ class BaseSchedCB(Callback):
 
 
 class BatchSchedCB(BaseSchedCB):
-    '''
+    """
     This callback executes the scheduler after every batch.
-    '''
+    """
 
     def after_batch(self, learn):
         self._step(learn)
 
 
 class EpochSchedCB(BaseSchedCB):
-    '''
+    """
     This callback executes the scheduler after every epoch.
-    '''
+    """
 
     def after_epoch(self, learn):
         self._step(learn)
 
 
 class HasLearnCB(Callback):
-    '''
+    """
     This callback stores the Learner object.
-    '''
+    """
 
     def before_fit(self, learn):
         self.learn = learn
@@ -48,12 +48,12 @@ class HasLearnCB(Callback):
 
 
 class RecorderCB(Callback):
-    '''
-    This callback records the values of the scheduler.
+    """
+    This callback records scheduler's values
 
     example usage:
     rec = RecorderCB(lr=_lr)
-    '''
+    """
 
     def __init__(self, **d):
         self.d = d

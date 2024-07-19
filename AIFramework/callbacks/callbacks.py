@@ -56,6 +56,14 @@ class Hooks(list):
 
 class HooksCallback(Callback):
     def __init__(self, hookfunc, mod_filter=fc.noop, on_train=True, on_valid=False, mods=None):
+        """
+        Args:
+            hookfunc (fn): _description_
+            mod_filter (_type_, optional): _description_. Defaults to fc.noop.
+            on_train (bool, optional): _description_. Defaults to True.
+            on_valid (bool, optional): _description_. Defaults to False.
+            mods (_type_, optional): _description_. Defaults to None.
+        """
         fc.store_attr()
         super().__init__()
 

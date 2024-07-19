@@ -2,21 +2,23 @@ import numpy as np
 import fastcore.all as fc
 from .callbacks import Callback
 from .utils import to_cpu
-''' 
-Callbacks used to initialize data
-example: used to normalize data batches during initialization
-'''
 
 
 class BatchTransformCB(Callback):
-    '''
-    Applies a transformation to the batch during initialization.
-    Used to normalize the data batch, applying mean = 0 and std = 1, for example.
-    if print_means is setted we print the mean and std values of the batches after every epoch.
+    """ Applies a transformation to the batch during initialization.
+        Used to normalize the data batch, applying mean = 0 and std = 1, for example.
 
-    '''
+        example: used to normalize data batches during initialization
+    """
 
     def __init__(self, normalize_fn, on_train=True, on_val=True, print_means=False):
+        """
+        Args:
+            normalize_fn (fn): function executed to normalize input data
+            on_train (bool, optional): training mode. Defaults to True.
+            on_val (bool, optional): validate mode. Defaults to True.
+            print_means (bool, optional): if is setted print the mean and std values of the batches after every epoch. Defaults to False.
+        """
         fc.store_attr()
 
     def after_init(self, learn):

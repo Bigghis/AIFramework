@@ -16,13 +16,22 @@ def append_stats(hook, mod, inp, outp):
 
 
 class ActivationStats(HooksCallback):
-    ''' 
-    Callback to collect and plotting activation statistics
-    '''
+    """Callback to collect and plotting activation statistics
+    """
+
     def __init__(self, mod_filter=fc.noop):
+        """
+        Args:
+            mod_filter (fn, optional): . Defaults to fc.noop.
+        """
         super().__init__(append_stats, mod_filter)
 
     def color_dim(self, figsize=(20, 5)):
+        """plots neurons activation
+
+        Args:
+            figsize (tuple, optional): _description_. Defaults to (20, 5).
+        """
         fig, axes = get_grid(len(self), figsize=figsize)
         index = 0
         for ax, h in zip(axes.flat, self):
@@ -34,7 +43,11 @@ class ActivationStats(HooksCallback):
             index += 1
 
     def dead_chart(self, figsize=(11, 9)):
-        ''' plot dead neurons. The lower the better..'''
+        """plots dead neurons, the lower the better..
+
+        Args:
+            figsize (tuple, optional): _description_. Defaults to (11, 9).
+        """
         fig, axes = get_grid(len(self), figsize=figsize)
         for ax, h in zip(axes.flatten(), self):
             ax.plot(get_min(h))
@@ -45,6 +58,11 @@ class ActivationStats(HooksCallback):
             ax.set_title(title, fontsize=10)
 
     def plot_stats(self, figsize=(10, 4)):
+        """plots means and standard deviations stats for batches
+
+        Args:
+            figsize (tuple, optional): _description_. Defaults to (10, 4).
+        """
         fig, axs = plt.subplots(1, 2, figsize=figsize)
         legends = []
         for index, h in enumerate(self):
