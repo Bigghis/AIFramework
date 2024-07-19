@@ -7,9 +7,6 @@ from .utils import to_cpu
 
 # print metrics with Progress bar
 
-    '''
-    
-    '''
 
 class MetricsCB(Callback):
     """This callback computes the metrics.
