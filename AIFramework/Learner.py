@@ -16,13 +16,32 @@ class Learner():
         fc.store_attr()
         self.callback('after_init')
 
-    def one_batch(self):
+    def predict(self):
         self.preds = self.model(self.batch[0])
+
+    def get_loss(self):
         self.loss = self.loss_func(self.preds, self.batch[1])
+
+    def backward(self):
+        self.loss.backward()
+
+    def step(self):
+        self.opt.step()
+    
+    def zero_grad(self):
+        self.opt.zero_grad()
+
+    def one_batch(self):
+        self.predict()
+        self.callback('after_predict')
+        self.get_loss()
+        self.callback('after_loss')
         if self.model.training:
-            self.loss.backward()
-            self.opt.step()
-            self.opt.zero_grad()
+            self.backward()
+            self.callback('after_backward')
+            self.step()
+            self.callback('after_step')
+            self.zero_grad()
 
     def one_epoch(self, train):
         self.model.train(train)
@@ -47,11 +66,11 @@ class Learner():
         try:
             self.callback('before_fit')
             for self.epoch in self.epochs:
-                if self.force_train: # force training only from params
+                if self.force_train:  # force training only from params
                     self.one_epoch(True)
-                elif self.force_eval: # force eval only from params
+                elif self.force_eval:  # force eval only from params
                     self.one_epoch(False)
-                else: # default case --> training + eval for every epoch
+                else:  # default case --> training + eval for every epoch
                     self.one_epoch(True)
                     self.one_epoch(False)
             self.callback('after_fit')

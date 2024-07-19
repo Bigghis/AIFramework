@@ -91,7 +91,8 @@ class SingleBatchCB(Callback):
 class TrainCB(Callback):
     ''' Callback to train the model'''
     
-    def __init__(self, n_inp=1): self.n_inp = n_inp
+    def __init__(self, n_inp=1):
+        self.n_inp = n_inp # number of inputs
 
     def predict(self, learn):
         learn.preds = learn.model(*learn.batch[:self.n_inp])

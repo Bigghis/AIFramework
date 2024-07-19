@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="AIFramework",
-    version="0.0.46",
+    version="0.0.66",
     author="Pasquale Casciano",
     author_email="pa.casciano@gmail.com",
     description="A tiny AI learner framework based on Jeremy Howard's lessons.",
@@ -19,7 +19,7 @@ setuptools.setup(
         'torcheval',
         'fastcore',
         'numpy',
-        'tqdm',
+        'tqdm'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

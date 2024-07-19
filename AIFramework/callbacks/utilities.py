@@ -1,9 +1,12 @@
-from .callbacks import Callback
+from .callbacks import Callback, TrainCB
+from .device import DeviceCB
+from accelerate import Accelerator
 import fastcore.all as fc
 import sys
 import gc
 import traceback
 import torch
+
 
 from ..exceptions import (
     CleanMemException
@@ -57,3 +60,53 @@ class CleanMemEnvironmentCB(Callback):
             clean_mem()
         except CleanMemException:
             print("clean mem failed!")
+
+
+class MixedPrecisionCB(TrainCB):
+    """Apply a pytorch GradScaler to scale precision from 32bit to 16bit
+    and back to 32bit. This can help reduce memory footprint and speed up cuda calcs
+    because Nvidia CUDA works faster with 16bit floats than 32bit floats.
+    """
+    order = DeviceCB.order+10
+
+    def before_fit(self, learn):
+        self.scaler = torch.cuda.amp.GradScaler()
+
+    def before_batch(self, learn):
+        self.autocast = torch.autocast("cuda", dtype=torch.float16)
+        self.autocast.__enter__()
+
+    def after_loss(self, learn):
+        self.autocast.__exit__(None, None, None)
+
+    def backward(self, learn):
+        self.scaler.scale(learn.loss).backward()
+
+    def step(self, learn):
+        self.scaler.step(learn.opt)
+        self.scaler.update()
+
+
+class AccelerateCB(TrainCB):
+    """
+    Use Accelerate to handle mixed precision training
+
+    https://huggingface.co/docs/accelerate/index
+
+    mixed_precision="fp16" is the default mixed precision training mode. "bf16" is another option.
+    """
+    order = DeviceCB.order+11
+
+    def __init__(self, n_inp=1, mixed_precision=None): 
+        super().__init__(n_inp=n_inp)
+        self.acc = Accelerator(mixed_precision=mixed_precision)
+
+    def before_fit(self, learn):
+        learn.model, learn.opt, learn.dataloaders = self.acc.prepare(
+            learn.model, learn.opt, learn.dataloaders)
+
+    def after_fit(self, learn):
+        learn.model = self.acc.unwrap_model(learn.model)
+
+    def backward(self, learn):
+        self.acc.backward(learn.loss)
