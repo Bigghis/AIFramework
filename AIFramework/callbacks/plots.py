@@ -3,6 +3,7 @@ import fastcore.all as fc
 from .callbacks import HooksCallback, Hooks, SingleBatchCB
 from .plotCharts.utils import get_grid, show_image, get_hist, get_min
 from .utils import to_cpu
+import torch
 
 
 def append_stats(hook, mod, inp, outp):
@@ -67,8 +68,13 @@ class ActivationStats(HooksCallback):
         legends = []
         for index, h in enumerate(self):
             for i in 0, 1:
-                axs[i].plot(h.stats[i])
-            # pdb.set_trace()
+                values = h.stats[i]
+
+                # convert to numpy array because numpy doesn't supports bf16 format, if not f32
+                if values[0].dtype is torch.bfloat16:
+                    values = [v.float().numpy() for v in values]
+                
+                axs[i].plot(values)
             title = f'{index} {h.mod._get_name()}'
             if hasattr(h.mod, 'in_channels'):
                 title = f'{title} ({h.mod.in_channels}, {h.mod.out_channels})'
