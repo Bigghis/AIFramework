@@ -97,7 +97,7 @@ class AccelerateCB(TrainCB):
 
     ----------------------------------------------------------------------
     accelerate config example (dual GPU on local machine): 
-  
+
     Which type of machine are you using? -> multi-GPU                                                                                                                                                                                                                                   
     How many different machines will you use (use more than 1 for multi-node training)? [1]: 1                                                                                                                                                  
     Should distributed operations be checked while running for errors? This can avoid timeout issues but will be slower. [yes/NO]: NO                                                                                                             
@@ -118,8 +118,8 @@ class AccelerateCB(TrainCB):
         self.acc = Accelerator(mixed_precision=mixed_precision)
 
     def before_fit(self, learn):
-        learn.model, learn.opt, learn.dataloaders = self.acc.prepare(
-            learn.model, learn.opt, learn.dataloaders)
+        learn.model, learn.opt, learn.dataloaders.train, learn.dataloaders.valid, learn.scheduler = self.acc.prepare(
+            learn.model, learn.opt, learn.dataloaders.train, learn.dataloaders.valid, learn.scheduler)
 
     def after_fit(self, learn):
         learn.model = self.acc.unwrap_model(learn.model)

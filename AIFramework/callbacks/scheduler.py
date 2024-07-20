@@ -1,5 +1,7 @@
 from .callbacks import Callback
 from matplotlib import pyplot as plt
+from .utilities import AccelerateCB
+
 
 class BaseSchedCB(Callback):
     '''
@@ -10,11 +12,12 @@ class BaseSchedCB(Callback):
         self.sched = sched
 
     def before_fit(self, learn):
-        self.scheduler_object = self.sched(learn.opt) # first sched parameter is the optimizer!
+        self.scheduler = self.sched(learn.opt) # first sched parameter is the optimizer!
+        learn.scheduler = self.scheduler
 
     def _step(self, learn):
         if learn.training:  # execute scheduler only if in training mode!
-            self.scheduler_object.step()
+            self.scheduler.step()
 
 
 class BatchSchedCB(BaseSchedCB):
@@ -54,6 +57,7 @@ class RecorderCB(Callback):
     example usage:
     rec = RecorderCB(lr=_lr)
     """
+    order = AccelerateCB.order+1 # to use correct scheduler if acccelerateCB is setted
 
     def __init__(self, **d):
         self.d = d

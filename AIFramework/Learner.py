@@ -63,6 +63,7 @@ class Learner():
         self.n_epochs = n_epochs
         self.epochs = range(n_epochs)
         self.opt = self.opt_func(self.model.parameters(), self.lr)
+        self.scheduler = None
         try:
             self.callback('before_fit')
             for self.epoch in self.epochs:
