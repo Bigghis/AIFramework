@@ -53,7 +53,7 @@ class CleanMemEnvironmentCB(Callback):
     clear a notebook environment 
     Used when a learner is initialized in a notebook
     """
-    order = 1
+    order = 0
 
     def after_init(self, learn):
         try:
@@ -89,7 +89,7 @@ class MixedPrecisionCB(TrainCB):
 
 class AccelerateCB(TrainCB):
     """
-    Use Accelerate to handle mixed precision training
+    Use Accelerate to handle mixed precision training and multi GPU
 
     https://huggingface.co/docs/accelerate/index
 

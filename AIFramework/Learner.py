@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 from torch import optim
+from functools import partial
 import fastcore.all as fc
 
 from .callbacks.callbacks import run_callbacks
@@ -11,11 +12,119 @@ from .exceptions import (
 )
 
 
+class with_cbs:
+    '''
+    decorator utility class used to adds callback logic to any training loop point
+    in the training loop structure
+    '''
+
+    def __init__(self, loop_point):
+        self.loop_point = loop_point
+
+    def __call__(self, f):
+        def fun(obj, *args, **kwargs):
+            try:
+                # exec before point callback
+                obj.callback(f'before_{self.loop_point}')
+                f(obj, *args, **kwargs)  # exec decorated function
+                # exec after point callback
+                obj.callback(f'after_{self.loop_point}')
+            # loop point execption in globals program variables..
+            except globals()[f'Cancel{self.loop_point.title()}Exception']:
+                pass
+            finally:
+                # exec cleanup point callback
+                obj.callback(f'cleanup_{self.loop_point}')
+        return fun
+
+
 class Learner():
-    def __init__(self, model, dataloaders, lr, callbacks, force_train=False, force_eval=False, loss_func=F.cross_entropy, opt_func=optim.SGD):
+    '''
+    flexible learner
+    '''
+
+    def __init__(self, model, dataloaders=(0,), loss_func=F.cross_entropy, lr=0.1, callbacks=None, opt_func=optim.SGD):
+        callbacks = fc.L(callbacks)
         fc.store_attr()
         self.callback('after_init')
 
+    @with_cbs('batch')
+    def _one_batch(self):
+        self.predict()
+        self.callback('after_predict')
+        self.get_loss()
+        self.callback('after_loss')
+        if self.training:
+            self.backward()
+            self.callback('after_backward')
+            self.step()
+            self.callback('after_step')
+            self.zero_grad()
+
+    @with_cbs('epoch')
+    def _one_epoch(self):
+        for self.iter, self.batch in enumerate(self.dl):
+            self._one_batch()
+
+    def one_epoch(self, training):
+        self.model.train(training)
+        self.dl = self.dataloaders.train if training else self.dataloaders.valid
+        self._one_epoch()
+
+    @with_cbs('fit')
+    def _fit(self, train, valid):
+        for self.epoch in self.epochs:
+            if train:
+                self.one_epoch(True)
+            if valid:
+                torch.no_grad()(self.one_epoch)(False)
+
+    '''
+    fit function to train the model
+    train True and valid True for training and validation
+    train False and valid True for train only
+    train False and valid True for validation only
+
+    can bypass lr by passing it as a parameter
+    and append some callbacks to the callbacks learner list
+    '''
+
+    def fit(self, n_epochs=1, train=True, valid=True, callbacks=None, lr=None):
+        callbacks = fc.L(callbacks)
+        for callback in callbacks:
+            self.callbacks.append(callback)
+        try:
+            self.n_epochs = n_epochs
+            self.epochs = range(n_epochs)
+            if lr is None:
+                lr = self.lr
+            if self.opt_func:
+                self.opt = self.opt_func(self.model.parameters(), lr)
+            self._fit(train, valid)
+        finally:
+            for callback in callbacks:
+                self.callbacks.remove(callback)
+
+    def __getattr__(self, name):
+        if name in ('predict', 'get_loss', 'backward', 'step', 'zero_grad'):
+            return partial(self.callback, name)
+        raise AttributeError(name)
+
+    def callback(self, method_name):
+        run_callbacks(self.callbacks, method_name, self)
+
+    @property
+    def training(self):
+        return self.model.training
+
+
+'''
+A train learner that subclass the flexible learner to implements
+backward, step, zero_grad, predict, get_loss functions...
+'''
+
+
+class TrainLearner(Learner):
     def predict(self):
         self.preds = self.model(self.batch[0])
 
@@ -27,60 +136,6 @@ class Learner():
 
     def step(self):
         self.opt.step()
-    
+
     def zero_grad(self):
         self.opt.zero_grad()
-
-    def one_batch(self):
-        self.predict()
-        self.callback('after_predict')
-        self.get_loss()
-        self.callback('after_loss')
-        if self.model.training:
-            self.backward()
-            self.callback('after_backward')
-            self.step()
-            self.callback('after_step')
-            self.zero_grad()
-
-    def one_epoch(self, train):
-        self.model.train(train)
-        self.dl = self.dataloaders.train if train else self.dataloaders.valid
-        try:
-            self.callback('before_epoch')
-            for self.iter, self.batch in enumerate(self.dl):
-                try:
-                    self.callback('before_batch')
-                    self.one_batch()
-                    self.callback('after_batch')
-                except CancelBatchException:
-                    pass
-            self.callback('after_epoch')
-        except CancelEpochException:
-            pass
-
-    def fit(self, n_epochs):
-        self.n_epochs = n_epochs
-        self.epochs = range(n_epochs)
-        self.opt = self.opt_func(self.model.parameters(), self.lr)
-        self.scheduler = None
-        try:
-            self.callback('before_fit')
-            for self.epoch in self.epochs:
-                if self.force_train: # force training only
-                    self.one_epoch(True)
-                elif self.force_eval: # force eval only
-                    self.one_epoch(False)
-                else:  # default case --> training + eval for every epoch
-                    self.one_epoch(True)
-                    self.one_epoch(False)
-            self.callback('after_fit')
-        except CancelFitException:
-            pass
-
-    def callback(self, method_nm):
-        run_callbacks(self.callbacks, method_nm, self)
-
-    @property
-    def training(self):
-        return self.model.training
