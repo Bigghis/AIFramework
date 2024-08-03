@@ -73,6 +73,7 @@ class Learner():
 
     @with_cbs('fit')
     def _fit(self, train, valid):
+        # training loop
         for self.epoch in self.epochs:
             if train:
                 self.one_epoch(True)
@@ -91,6 +92,8 @@ class Learner():
 
     def fit(self, n_epochs=1, train=True, valid=True, callbacks=None, lr=None):
         callbacks = fc.L(callbacks)
+        self.scheduler = None
+
         for callback in callbacks:
             self.callbacks.append(callback)
         try:

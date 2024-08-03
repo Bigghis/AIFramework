@@ -113,7 +113,7 @@ class AccelerateCB(TrainCB):
     """
     order = DeviceCB.order+11
 
-    def __init__(self, n_inp=1, mixed_precision=None): 
+    def __init__(self, n_inp=1, mixed_precision=None):
         super().__init__(n_inp=n_inp)
         self.acc = Accelerator(mixed_precision=mixed_precision)
 
@@ -126,3 +126,23 @@ class AccelerateCB(TrainCB):
 
     def backward(self, learn):
         self.acc.backward(learn.loss)
+
+
+class AccelerateWithCustomLossFuncCB(AccelerateCB):
+    """
+    AccelerateCB to use Accelerate HuggingFace Framework 
+    with a custom loss function
+    """
+
+    def __init(self):
+        super(AccelerateCustomCB, self).__init__()
+
+    def get_loss(self, learn):
+        # we need calculate loss value executing learn.loss_func that is the custom loss function
+        # loss value is a tensor
+        self.loss = learn.loss_func(learn.preds)
+
+    def backward(self, learn):
+        # then we execute accelerate.backward with the tensor loss value calculated by get_loss
+        # passed as a parameter to the accelerate backward method
+        self.acc.backward(self.loss)
