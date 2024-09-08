@@ -46,6 +46,7 @@ class Learner():
     def __init__(self, model, dataloaders=(0,), loss_func=F.cross_entropy, lr=0.1, callbacks=None, opt_func=optim.SGD):
         callbacks = fc.L(callbacks)
         fc.store_attr()
+        self.callback = self._callback  # Assign the method here
         self.callback('after_init')
 
     @with_cbs('batch')
@@ -91,6 +92,23 @@ class Learner():
     '''
 
     def fit(self, n_epochs=1, train=True, valid=True, callbacks=None, lr=None):
+        '''
+        Fit the model for a specified number of epochs.
+
+        Parameters:
+        - n_epochs (int): Number of epochs to train (default: 1)
+        - train (bool): If True, perform training (default: True)
+        - valid (bool): If True, perform validation (default: True)
+        - callbacks (list): Additional callbacks to use during training (default: None)
+        - lr (float): Learning rate. If None, uses the lr specified during initialization (default: None)
+
+        Behavior:
+        - If train=True and valid=True: Performs both training and validation for each epoch
+        - If train=True and valid=False: Performs only training for each epoch
+        - If train=False and valid=True: Performs only validation for each epoch
+        - If train=False and valid=False: No training or validation occurs
+
+        '''
         callbacks = fc.L(callbacks)
         self.scheduler = None
 
@@ -113,7 +131,7 @@ class Learner():
             return partial(self.callback, name)
         raise AttributeError(name)
 
-    def callback(self, method_name):
+    def _callback(self, method_name):
         run_callbacks(self.callbacks, method_name, self)
 
     @property
